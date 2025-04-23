@@ -33,6 +33,7 @@ def koch_generator(u, level):
                 sub_points = sub_points[1:]
             result.extend(sub_points)
         return np.array(result)
+        
 def minkowski_generator(u, level):
     """
     递归/迭代生成闵可夫斯基香肠曲线的点序列。
