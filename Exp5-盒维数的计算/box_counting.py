@@ -7,7 +7,6 @@
 2. 完成以下函数实现
 3. 在main函数中测试你的实现
 """
-from sklearn.linear_model import LinearRegression
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
