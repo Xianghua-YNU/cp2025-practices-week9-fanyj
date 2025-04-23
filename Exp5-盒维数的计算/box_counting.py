@@ -30,7 +30,10 @@ def load_and_binarize_image(image_path, threshold=128):
     """
     # TODO: 实现图像加载和二值化
     # ... your code here ...
-    pass
+    image = Image.open(image_path).convert('L')
+    image_array = np.array(image)
+    binary_image = (image_array > threshold).astype(int)
+    return binary_image
 
 def box_count(binary_image, box_sizes):
     """
@@ -52,7 +55,19 @@ def box_count(binary_image, box_sizes):
     """
     # TODO: 实现盒计数算法
     # ... your code here ...
-    pass
+    height, width = binary_image.shape
+    counts = {}
+    for box_size in box_sizes:
+        rows = height // box_size
+        cols = width // box_size
+        count = 0
+        for i in range(rows):
+            for j in range(cols):
+                box = binary_image[i * box_size:(i + 1) * box_size, j * box_size:(j + 1) * box_size]
+                if np.any(box):
+                    count += 1
+        counts[box_size] = count
+    return counts
 
 def calculate_fractal_dimension(binary_image, min_box_size=1, max_box_size=None, num_sizes=10):
     """
@@ -75,7 +90,21 @@ def calculate_fractal_dimension(binary_image, min_box_size=1, max_box_size=None,
     """
     # TODO: 实现分形维数计算
     # ... your code here ...
-    pass
+    if max_box_size is None:
+        max_box_size = min(binary_image.shape) // 2
+    box_sizes = np.geomspace(min_box_size, max_box_size, num_sizes, dtype=int)
+    counts = box_count(binary_image, box_sizes)
+    epsilons = np.array(list(counts.keys()))
+    N_epsilons = np.array(list(counts.values()))
+    log_epsilons = np.log(1 / epsilons)
+    log_N_epsilons = np.log(N_epsilons)
+    model = LinearRegression()
+    model.fit(log_epsilons.reshape(-1, 1), log_N_epsilons)
+    slope = model.coef_[0]
+    intercept = model.intercept_
+    D = slope
+    return D, (epsilons, N_epsilons, slope, intercept)
+
 
 def plot_log_log(epsilons, N_epsilons, slope, intercept, save_path=None):
     """
@@ -96,7 +125,19 @@ def plot_log_log(epsilons, N_epsilons, slope, intercept, save_path=None):
     """
     # TODO: 实现log-log图绘制
     # ... your code here ...
-    pass
+    log_epsilons = np.log(1 / epsilons)
+    log_N_epsilons = np.log(N_epsilons)
+    plt.scatter(log_epsilons, log_N_epsilons, label='Data points')
+    x_fit = np.linspace(log_epsilons.min(), log_epsilons.max(), 100)
+    y_fit = slope * x_fit + intercept
+    plt.plot(x_fit, y_fit, color='red', label=f'Fitted line (slope={slope:.2f})')
+    plt.xlabel('log(1/ε)')
+    plt.ylabel('log(N(ε))')
+    plt.title('Log-Log Plot for Fractal Dimension')
+    plt.legend()
+    if save_path:
+        plt.savefig(save_path)
+    plt.show()
 
 if __name__ == "__main__":
     """
@@ -117,13 +158,13 @@ if __name__ == "__main__":
     IMAGE_PATH = "../../images/barnsley_fern.png"  
     
     # 1. 加载并二值化图像
-    # binary_img = load_and_binarize_image(IMAGE_PATH)
+    binary_img = load_and_binarize_image(IMAGE_PATH)
     
     # 2. 计算分形维数
-    # D, results = calculate_fractal_dimension(binary_img)
+    D, results = calculate_fractal_dimension(binary_img)
     
     # 3. 输出结果
-    # print(f"估算的盒维数 D = {D:.5f}")
+    print(f"估算的盒维数 D = {D:.5f}")
     
     # 4. 绘制log-log图
-    # plot_log_log(*results[1:], "log_log_plot.png")
+    plot_log_log(*results[1:], "log_log_plot.png")
