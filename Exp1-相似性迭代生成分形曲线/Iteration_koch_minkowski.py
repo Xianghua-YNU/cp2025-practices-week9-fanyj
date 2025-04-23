@@ -13,7 +13,33 @@ def koch_generator(u, level):
         numpy.ndarray: 生成的所有点（复数数组）
     """
     # TODO: 实现科赫曲线生成算法
-    pass
+    if level == 0:
+        return u
+    
+    # 将每条线段转换为4个线段
+    new_u = []
+    for i in range(len(u)-1):
+        start = u[i]
+        end = u[i+1]
+        
+        # 计算四个分割点
+        segment = end - start
+        p1 = start
+        p2 = start + segment / 3
+        p4 = start + 2 * segment / 3
+        p5 = end
+        
+        # 计算三角形顶点
+        angle = np.pi / 3  # 60度
+        rotation = np.exp(1j * angle)
+        p3 = p2 + (p4 - p2) * rotation
+        
+        # 添加新点
+        new_u.extend([p1, p2, p3, p4])
+    
+    new_u.append(u[-1])  # 添加最后一个点
+    
+    return koch_generator(np.array(new_u), level-1)
         
 def minkowski_generator(u, level):
     """
@@ -27,7 +53,32 @@ def minkowski_generator(u, level):
         numpy.ndarray: 生成的所有点（复数数组）
     """
     # TODO: 实现闵可夫斯基香肠曲线生成算法
-    pass
+    if level == 0:
+        return u
+    
+    # 将每条线段转换为8个线段
+    new_u = []
+    for i in range(len(u)-1):
+        start = u[i]
+        end = u[i+1]
+        segment = end - start
+        
+        # 计算所有分割点
+        p1 = start
+        p2 = start + segment / 4
+        p3 = p2 + segment / 4 * 1j  # 向上
+        p4 = p3 + segment / 4
+        p5 = p4 - segment / 4 * 1j  # 向下
+        p6 = p5 - segment / 4 * 1j  # 继续向下
+        p7 = p6 + segment / 4
+        p8 = p7 + segment / 4 * 1j  # 向上
+        
+        # 添加新点
+        new_u.extend([p1, p2, p3, p4, p5, p6, p7, p8])
+    
+    new_u.append(u[-1])  # 添加最后一个点
+    
+    return minkowski_generator(np.array(new_u), level-1)
 
 if __name__ == "__main__":
     # 初始线段
