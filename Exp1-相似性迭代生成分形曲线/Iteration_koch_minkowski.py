@@ -13,26 +13,7 @@ def koch_generator(u, level):
         numpy.ndarray: 生成的所有点（复数数组）
     """
     # TODO: 实现科赫曲线生成算法
-    if level == 0:
-        return u
-    else:
-        a = u[0]
-        b = u[1]
-        v = (b - a) / 3
-        points = [
-            a,
-            a + v,
-            a + v + v * (np.cos(np.pi / 3) + 1j * np.sin(np.pi / 3)),
-            a + 2 * v,
-            b
-        ]
-        result = []
-        for i in range(len(points) - 1):
-            sub_points = koch_generator(np.array([points[i], points[i + 1]]), level - 1)
-            if i > 0:
-                sub_points = sub_points[1:]
-            result.extend(sub_points)
-        return np.array(result)
+    pass
         
 def minkowski_generator(u, level):
     """
@@ -46,28 +27,7 @@ def minkowski_generator(u, level):
         numpy.ndarray: 生成的所有点（复数数组）
     """
     # TODO: 实现闵可夫斯基香肠曲线生成算法
-    if level == 0:
-        return u
-    else:
-        a = u[0]
-        b = u[1]
-        v = (b - a) / 4
-        points = [
-            a,
-            a + v,
-            a + v + 1j * v,
-            a + 2 * v + 1j * v,
-            a + 2 * v,
-            a + 3 * v,
-            b
-        ]
-        result = []
-        for i in range(len(points) - 1):
-            sub_points = minkowski_generator(np.array([points[i], points[i + 1]]), level - 1)
-            if i > 0:
-                sub_points = sub_points[1:]
-            result.extend(sub_points)
-        return np.array(result)
+    pass
 
 if __name__ == "__main__":
     # 初始线段
