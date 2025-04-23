@@ -158,13 +158,13 @@ if __name__ == "__main__":
     IMAGE_PATH = "../../images/barnsley_fern.png"  
     
     # 1. 加载并二值化图像
-    binary_img = load_and_binarize_image(IMAGE_PATH)
+    # binary_img = load_and_binarize_image(IMAGE_PATH)
     
     # 2. 计算分形维数
-    D, results = calculate_fractal_dimension(binary_img)
+    # D, results = calculate_fractal_dimension(binary_img)
     
     # 3. 输出结果
-    print(f"估算的盒维数 D = {D:.5f}")
+    #print(f"估算的盒维数 D = {D:.5f}")
     
     # 4. 绘制log-log图
-    plot_log_log(*results[1:], "log_log_plot.png")
+    #plot_log_log(*results[1:], "log_log_plot.png")
