@@ -16,30 +16,23 @@ def koch_generator(u, level):
     if level == 0:
         return u
     
-    # 将每条线段转换为4个线段
-    new_u = []
-    for i in range(len(u)-1):
-        start = u[i]
-        end = u[i+1]
-        
-        # 计算四个分割点
-        segment = end - start
-        p1 = start
-        p2 = start + segment / 3
-        p4 = start + 2 * segment / 3
-        p5 = end
-        
-        # 计算三角形顶点
-        angle = np.pi / 3  # 60度
-        rotation = np.exp(1j * angle)
-        p3 = p2 + (p4 - p2) * rotation
-        
-        # 添加新点
-        new_u.extend([p1, p2, p3, p4])
+    # 将线段分成三等分，并在中间插入一个等边三角形的两边
+    p1 = u[0]
+    p2 = u[-1]
     
-    new_u.append(u[-1])  # 添加最后一个点
+    # 计算四个关键点
+    a = p1 + (p2 - p1) / 3
+    b = p1 + 2 * (p2 - p1) / 3
+    c = a + (b - a) * np.exp(1j * np.pi / 3)  # 旋转60度
     
-    return koch_generator(np.array(new_u), level-1)
+    # 递归处理四个子线段
+    left = koch_generator(np.array([p1, a]), level - 1)
+    middle_left = koch_generator(np.array([a, c]), level - 1)
+    middle_right = koch_generator(np.array([c, b]), level - 1)
+    right = koch_generator(np.array([b, p2]), level - 1)
+    
+    # 合并结果（避免重复点）
+    return np.concatenate([left[:-1], middle_left[:-1], middle_right[:-1], right])
         
 def minkowski_generator(u, level):
     """
@@ -52,33 +45,31 @@ def minkowski_generator(u, level):
     返回:
         numpy.ndarray: 生成的所有点（复数数组）
     """
-    # TODO: 实现闵可夫斯基香肠曲线生成算法
     if level == 0:
         return u
     
-    # 将每条线段转换为8个线段
-    new_u = []
-    for i in range(len(u)-1):
-        start = u[i]
-        end = u[i+1]
-        segment = end - start
-        
-        # 计算所有分割点
-        p1 = start
-        p2 = start + segment / 4
-        p3 = p2 + segment / 4 * 1j  # 向上
-        p4 = p3 + segment / 4
-        p5 = p4 - segment / 4 * 1j  # 向下
-        p6 = p5 - segment / 4 * 1j  # 继续向下
-        p7 = p6 + segment / 4
-        p8 = p7 + segment / 4 * 1j  # 向上
-        
-        # 添加新点
-        new_u.extend([p1, p2, p3, p4, p5, p6, p7, p8])
+    p1 = u[0]
+    p2 = u[-1]
     
-    new_u.append(u[-1])  # 添加最后一个点
+    # 将线段分成四等分，并在中间插入一个“盒子”
+    a = p1 + (p2 - p1) / 4
+    b = p1 + 2 * (p2 - p1) / 4
+    c = p1 + 3 * (p2 - p1) / 4
     
-    return minkowski_generator(np.array(new_u), level-1)
+    # 计算“盒子”的四个顶点
+    d = a + (b - a) * 1j  # 向上
+    e = b + (b - a) * 1j  # 向上
+    
+    # 递归处理所有子线段
+    left = minkowski_generator(np.array([p1, a]), level - 1)
+    middle1 = minkowski_generator(np.array([a, d]), level - 1)
+    middle2 = minkowski_generator(np.array([d, e]), level - 1)
+    middle3 = minkowski_generator(np.array([e, c]), level - 1)
+    right = minkowski_generator(np.array([c, p2]), level - 1)
+    
+    # 合并结果（避免重复点）
+    return np.concatenate([left[:-1], middle1[:-1], middle2[:-1], middle3[:-1], right])
+
 
 if __name__ == "__main__":
     # 初始线段
