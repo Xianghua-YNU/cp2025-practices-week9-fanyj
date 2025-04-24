@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def koch_generator(u, level):
     """
     递归/迭代生成科赫曲线的点序列。
@@ -12,11 +13,10 @@ def koch_generator(u, level):
     返回:
         numpy.ndarray: 生成的所有点（复数数组）
     """
-    # TODO: 实现科赫曲线生成算法
     if level == 0:
         return u
     else:
-        v = np.zeros(4 * len(u) - 3, dtype=complex)
+        new_points = []
         for i in range(len(u) - 1):
             a = u[i]
             b = u[i + 1]
@@ -26,15 +26,11 @@ def koch_generator(u, level):
             p3 = p2 + d * np.exp(1j * np.pi / 3)
             p4 = b - d
             p5 = b
-            idx = 4 * i
-            v[idx] = p1
-            v[idx + 1] = p2
-            v[idx + 2] = p3
-            v[idx + 3] = p4
-            if i < len(u) - 2:
-                v[idx + 4] = p5
-        return koch_generator(v, level - 1)
-        
+            new_points.extend([p1, p2, p3, p4])
+        new_points.append(u[-1])
+        return koch_generator(np.array(new_points), level - 1)
+
+
 def minkowski_generator(u, level):
     """
     递归/迭代生成闵可夫斯基香肠曲线的点序列。
@@ -48,29 +44,21 @@ def minkowski_generator(u, level):
     """
     if level == 0:
         return u
-    else:
-        v = np.zeros(4 * len(u) - 3, dtype=complex)
-        for i in range(len(u) - 1):
-            a = u[i]
-            b = u[i + 1]
-            d = (b - a) / 4
-            p1 = a
-            p2 = a + d
-            p3 = p2 + 1j * d
-            p4 = p3 + d
-            p5 = p4 - 1j * d
-            p6 = p5 + d
-            p7 = b
-            idx = 4 * i
-            v[idx] = p1
-            v[idx + 1] = p2
-            v[idx + 2] = p3
-            v[idx + 3] = p4
-            v[idx + 4] = p5
-            v[idx + 5] = p6
-            if i < len(u) - 2:
-                v[idx + 6] = p7
-        return minkowski_generator(v, level - 1)
+    new_points = []
+    for i in range(len(u) - 1):
+        a = u[i]
+        b = u[i + 1]
+        d = (b - a) / 4
+        p1 = a
+        p2 = a + d
+        p3 = p2 + 1j * d
+        p4 = p3 + d
+        p5 = p4 - 1j * d
+        p6 = p5 + d
+        p7 = b
+        new_points.extend([p1, p2, p3, p4, p5, p6])
+    new_points.append(u[-1])
+    return minkowski_generator(np.array(new_points), level - 1)
 
 
 if __name__ == "__main__":
@@ -80,27 +68,28 @@ if __name__ == "__main__":
     # 绘制不同层级的科赫曲线
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
     for i in range(4):
-        # TODO: 调用koch_generator生成点
-        koch_points = None  # 替换为实际生成的点
-        axs[i//2, i%2].plot(
+        # 调用koch_generator生成点
+        koch_points = koch_generator(init_u, i + 1)
+        axs[i // 2, i % 2].plot(
             np.real(koch_points), np.imag(koch_points), 'k-', lw=1
         )
-        axs[i//2, i%2].set_title(f"Koch Curve Level {i+1}")
-        axs[i//2, i%2].axis('equal')
-        axs[i//2, i%2].axis('off')
+        axs[i // 2, i % 2].set_title(f"Koch Curve Level {i + 1}")
+        axs[i // 2, i % 2].axis('equal')
+        axs[i // 2, i % 2].axis('off')
     plt.tight_layout()
     plt.show()
 
     # 绘制不同层级的闵可夫斯基香肠曲线
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
     for i in range(4):
-        # TODO: 调用minkowski_generator生成点
-        minkowski_points = None  # 替换为实际生成的点
-        axs[i//2, i%2].plot(
+        # 调用minkowski_generator生成点
+        minkowski_points = minkowski_generator(init_u, i + 1)
+        axs[i // 2, i % 2].plot(
             np.real(minkowski_points), np.imag(minkowski_points), 'k-', lw=1
         )
-        axs[i//2, i%2].set_title(f"Minkowski Sausage Level {i+1}")
-        axs[i//2, i%2].axis('equal')
-        axs[i//2, i%2].axis('off')
+        axs[i // 2, i % 2].set_title(f"Minkowski Sausage Level {i + 1}")
+        axs[i // 2, i % 2].axis('equal')
+        axs[i // 2, i % 2].axis('off')
     plt.tight_layout()
     plt.show()
+    
