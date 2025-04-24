@@ -15,24 +15,25 @@ def koch_generator(u, level):
     # TODO: 实现科赫曲线生成算法
     if level == 0:
         return u
-    
-    # 将线段分成三等分，并在中间插入一个等边三角形的两边
-    p1 = u[0]
-    p2 = u[-1]
-    
-    # 计算四个关键点
-    a = p1 + (p2 - p1) / 3
-    b = p1 + 2 * (p2 - p1) / 3
-    c = a + (b - a) * np.exp(1j * np.pi / 3)  # 旋转60度
-    
-    # 递归处理四个子线段
-    left = koch_generator(np.array([p1, a]), level - 1)
-    middle_left = koch_generator(np.array([a, c]), level - 1)
-    middle_right = koch_generator(np.array([c, b]), level - 1)
-    right = koch_generator(np.array([b, p2]), level - 1)
-    
-    # 合并结果（避免重复点）
-    return np.concatenate([left[:-1], middle_left[:-1], middle_right[:-1], right])
+    else:
+        v = np.zeros(4 * len(u) - 3, dtype=complex)
+        for i in range(len(u) - 1):
+            a = u[i]
+            b = u[i + 1]
+            d = (b - a) / 3
+            p1 = a
+            p2 = a + d
+            p3 = p2 + d * np.exp(1j * np.pi / 3)
+            p4 = b - d
+            p5 = b
+            idx = 4 * i
+            v[idx] = p1
+            v[idx + 1] = p2
+            v[idx + 2] = p3
+            v[idx + 3] = p4
+            if i < len(u) - 2:
+                v[idx + 4] = p5
+        return koch_generator(v, level - 1)
         
 def minkowski_generator(u, level):
     """
@@ -47,28 +48,29 @@ def minkowski_generator(u, level):
     """
     if level == 0:
         return u
-    
-    p1 = u[0]
-    p2 = u[-1]
-    
-    # 将线段分成四等分，并在中间插入一个“盒子”
-    a = p1 + (p2 - p1) / 4
-    b = p1 + 2 * (p2 - p1) / 4
-    c = p1 + 3 * (p2 - p1) / 4
-    
-    # 计算“盒子”的四个顶点
-    d = a + (b - a) * 1j  # 向上
-    e = b + (b - a) * 1j  # 向上
-    
-    # 递归处理所有子线段
-    left = minkowski_generator(np.array([p1, a]), level - 1)
-    middle1 = minkowski_generator(np.array([a, d]), level - 1)
-    middle2 = minkowski_generator(np.array([d, e]), level - 1)
-    middle3 = minkowski_generator(np.array([e, c]), level - 1)
-    right = minkowski_generator(np.array([c, p2]), level - 1)
-    
-    # 合并结果（避免重复点）
-    return np.concatenate([left[:-1], middle1[:-1], middle2[:-1], middle3[:-1], right])
+    else:
+        v = np.zeros(4 * len(u) - 3, dtype=complex)
+        for i in range(len(u) - 1):
+            a = u[i]
+            b = u[i + 1]
+            d = (b - a) / 4
+            p1 = a
+            p2 = a + d
+            p3 = p2 + 1j * d
+            p4 = p3 + d
+            p5 = p4 - 1j * d
+            p6 = p5 + d
+            p7 = b
+            idx = 4 * i
+            v[idx] = p1
+            v[idx + 1] = p2
+            v[idx + 2] = p3
+            v[idx + 3] = p4
+            v[idx + 4] = p5
+            v[idx + 5] = p6
+            if i < len(u) - 2:
+                v[idx + 6] = p7
+        return minkowski_generator(v, level - 1)
 
 
 if __name__ == "__main__":
