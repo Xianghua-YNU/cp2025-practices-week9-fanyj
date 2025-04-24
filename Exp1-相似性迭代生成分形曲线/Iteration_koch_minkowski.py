@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 def koch_generator(u, level):
     """
-    递归/迭代生成科赫曲线的点序列。
+    递归生成科赫曲线的点序列。
     
     参数:
         u: 初始线段的端点数组（复数表示）
@@ -15,7 +15,6 @@ def koch_generator(u, level):
     if level == 0:
         return u
     
-    # 将当前线段分成三等分，并在中间部分构建等边三角形
     points = []
     for i in range(len(u)-1):
         start = u[i]
@@ -30,14 +29,15 @@ def koch_generator(u, level):
         
         # 递归处理每个新线段
         segment = koch_generator(np.array([p1, p2, p3, p4, p5]), level-1)
-        points.extend(segment[:-1])
+        points.extend(segment)
     
-    points.append(u[-1])  # 添加最后一个点
-    return np.array(points)
+    # 去重并保持顺序
+    _, idx = np.unique(points, return_index=True)
+    return np.array(points)[np.sort(idx)]
         
 def minkowski_generator(u, level):
     """
-    递归/迭代生成闵可夫斯基香肠曲线的点序列。
+    递归生成闵可夫斯基香肠曲线的点序列。
     
     参数:
         u: 初始线段的端点数组（复数表示）
@@ -68,14 +68,20 @@ def minkowski_generator(u, level):
         
         # 递归处理每个新线段
         segment = minkowski_generator(np.array([p1, p2, p3, p4, p5, p6, p7, p8, p9]), level-1)
-        points.extend(segment[:-1])
+        points.extend(segment)
     
-    points.append(u[-1])  # 添加最后一个点
-    return np.array(points)
+    # 去重并保持顺序
+    _, idx = np.unique(points, return_index=True)
+    return np.array(points)[np.sort(idx)]
 
 if __name__ == "__main__":
     # 初始线段
     init_u = np.array([0 + 0j, 1 + 0j])
+
+    # 测试点数量
+    print("Koch level 2 points:", len(koch_generator(init_u, 2)))  # 应该输出20
+    print("Minkowski level 1 points:", len(minkowski_generator(init_u, 1)))  # 应该输出10
+    print("Minkowski level 2 points:", len(minkowski_generator(init_u, 2)))  # 应该输出90
 
     # 绘制不同层级的科赫曲线
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
