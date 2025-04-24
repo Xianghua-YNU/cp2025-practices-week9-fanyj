@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import math
 
+
 def apply_rules(axiom, rules, iterations):
     """
     生成L-System字符串
@@ -11,14 +12,17 @@ def apply_rules(axiom, rules, iterations):
     """
     current_string = axiom
     for _ in range(iterations):
-        new_string = []
+        new_string = ""
         for char in current_string:
-            # 如果字符在规则中，则替换，否则保留原字符
-            new_string.append(rules.get(char, char))
-        current_string = "".join(new_string)
+            if char in rules:
+                new_string += rules[char]
+            else:
+                new_string += char
+        current_string = new_string
     return current_string
 
-def draw_l_system(instructions, angle, step, start_pos=(0,0), start_angle=0, savefile=None):
+
+def draw_l_system(instructions, angle, step, start_pos=(0, 0), start_angle=0, savefile=None, **kwargs):
     """
     根据L-System指令绘图
     :param instructions: 指令字符串（如"F+F--F+F"）
@@ -27,35 +31,33 @@ def draw_l_system(instructions, angle, step, start_pos=(0,0), start_angle=0, sav
     :param start_pos: 起始坐标 (x, y)
     :param start_angle: 起始角度（0表示向右，90表示向上）
     :param savefile: 若指定则保存为图片文件，否则直接显示
+    :param kwargs: 用于接收多余的关键字参数，忽略它们
     """
     x, y = start_pos
-    current_angle = start_angle
-    stack = []  # 用于保存状态的栈（用于处理分支结构）
-    
-    plt.figure(figsize=(10, 10))
-    plt.axis('equal')
-    plt.axis('off')
-    
-    for cmd in instructions:
-        if cmd == 'F' or cmd == '0' or cmd == '1':  # 前进命令
-            new_x = x + step * math.cos(math.radians(current_angle))
-            new_y = y + step * math.sin(math.radians(current_angle))
-            plt.plot([x, new_x], [y, new_y], 'k-', linewidth=1)
+    current_angle = math.radians(start_angle)
+    stack = []
+    plt.figure()
+    plt.axes().set_aspect('equal')
+    for char in instructions:
+        if char == 'F':
+            new_x = x + step * math.cos(current_angle)
+            new_y = y + step * math.sin(current_angle)
+            plt.plot([x, new_x], [y, new_y], 'k-')
             x, y = new_x, new_y
-        elif cmd == '+':  # 左转
-            current_angle += angle
-        elif cmd == '-':  # 右转
-            current_angle -= angle
-        elif cmd == '[':  # 保存当前状态（用于分支）
+        elif char == '+':
+            current_angle += math.radians(angle)
+        elif char == '-':
+            current_angle -= math.radians(angle)
+        elif char == '[':
             stack.append((x, y, current_angle))
-        elif cmd == ']':  # 恢复之前保存的状态
+        elif char == ']':
             x, y, current_angle = stack.pop()
-    
+
     if savefile:
-        plt.savefig(savefile, bbox_inches='tight', dpi=150)
+        plt.savefig(savefile)
     else:
         plt.show()
-    plt.close()
+
 
 if __name__ == "__main__":
     """
@@ -76,6 +78,7 @@ if __name__ == "__main__":
     rules = {"1": "11", "0": "1[0]0"}
     iterations = 5
     angle = 45
-    step = 5  # 更小的步长适合树形结构
+    step = 10
     instr = apply_rules(axiom, rules, iterations)
-    draw_l_system(instr, angle, step, start_angle=90, savefile="fractal_tree.png")
+    draw_l_system(instr, angle, step, savefile="fractal_tree.png")
+    
